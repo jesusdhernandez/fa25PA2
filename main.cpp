@@ -9,20 +9,23 @@
 using namespace std;
 
 // Global arrays for node information
-const int MAX_NODES = 64;
-int weightArr[MAX_NODES];
-int leftArr[MAX_NODES];
-int rightArr[MAX_NODES];
-char charArr[MAX_NODES];
+const char PLACEHOLDER = '\0';
+const int  MAX_NODES   =  64 ;
+int  weightArr[MAX_NODES];
+int  leftArr  [MAX_NODES];
+int  rightArr [MAX_NODES];
+char charArr  [MAX_NODES];
+MinHeap heap;
 
 // Function prototypes
-void buildFrequencyTable(int freq[], const string& filename);
-int createLeafNodes(int freq[]);
-int buildEncodingTree(int nextFree);
+void buildFrequencyTable(int freq[], const string &filename);
+int  createLeafNodes(int freq[]);
+int  buildEncodingTree(int nextFree);
 void generateCodes(int root, string codes[]);
-void encodeMessage(const string& filename, string codes[]);
+void encodeMessage(const string &filename, string codes[]);
 
-int main() {
+int main()
+{
     int freq[26] = {0};
 
     // Step 1: Read file and count letter frequencies
@@ -49,15 +52,18 @@ int main() {
   ------------------------------------------------------*/
 
 // Step 1: Read file and count frequencies
-void buildFrequencyTable(int freq[], const string& filename) {
+void buildFrequencyTable(int freq[], const string &filename)
+{
     ifstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Error: could not open " << filename << "\n";
         exit(1);
     }
 
     char ch;
-    while (file.get(ch)) {
+    while (file.get(ch))
+    {
         // Convert uppercase to lowercase
         if (ch >= 'A' && ch <= 'Z')
             ch = ch - 'A' + 'a';
@@ -72,10 +78,13 @@ void buildFrequencyTable(int freq[], const string& filename) {
 }
 
 // Step 2: Create leaf nodes for each character
-int createLeafNodes(int freq[]) {
+int createLeafNodes(int freq[])
+{
     int nextFree = 0;
-    for (int i = 0; i < 26; ++i) {
-        if (freq[i] > 0) {
+    for (int i = 0; i < 26; ++i)
+    {
+        if (freq[i] > 0)
+        {
             charArr[nextFree] = 'a' + i;
             weightArr[nextFree] = freq[i];
             leftArr[nextFree] = -1;
@@ -88,7 +97,37 @@ int createLeafNodes(int freq[]) {
 }
 
 // Step 3: Build the encoding tree using heap operations
-int buildEncodingTree(int nextFree) {
+int buildEncodingTree(int nextFree) // TODO: Test functionality of this code I wrote while sleep deprived
+{
+    // Push indexes of found letters to heap
+    for (int i = 0; i < nextFree; i++)
+        if (weightArr[i] > 0)
+            heap.push(i, weightArr);
+
+    // Returning root in edge cases
+    if (heap.size == 0) return -1;
+    if (heap.size == 1) return heap.pop(weightArr);
+
+    // Combine weights until one node is left
+    int nextIndex = nextFree;
+    while (heap.size > 1)
+    {
+        int left  = heap.pop(weightArr);
+        int right = heap.pop(weightArr);
+
+        int parent = nextIndex++;
+
+        weightArr[parent] = weightArr[left] + weightArr[right];
+        charArr  [parent] = PLACEHOLDER;
+        leftArr  [parent] = left;
+        rightArr [parent] = right;
+
+        heap.push(parent, weightArr);
+    }
+
+    // Return remaining root
+    return heap.pop(weightArr);
+
     // TODO:
     // 1. Create a MinHeap object.
     // 2. Push all leaf node indices into the heap.
@@ -98,11 +137,11 @@ int buildEncodingTree(int nextFree) {
     //    - Set left/right pointers
     //    - Push new parent index back into the heap
     // 4. Return the index of the last remaining node (root)
-    return -1; // placeholder
 }
 
 // Step 4: Use an STL stack to generate codes
-void generateCodes(int root, string codes[]) {
+void generateCodes(int root, string codes[])
+{
     // TODO:
     // Use stack<pair<int, string>> to simulate DFS traversal.
     // Left edge adds '0', right edge adds '1'.
@@ -110,9 +149,11 @@ void generateCodes(int root, string codes[]) {
 }
 
 // Step 5: Print table and encoded message
-void encodeMessage(const string& filename, string codes[]) {
+void encodeMessage(const string &filename, string codes[])
+{
     cout << "\nCharacter : Code\n";
-    for (int i = 0; i < 26; ++i) {
+    for (int i = 0; i < 26; ++i)
+    {
         if (!codes[i].empty())
             cout << char('a' + i) << " : " << codes[i] << "\n";
     }
@@ -121,7 +162,8 @@ void encodeMessage(const string& filename, string codes[]) {
 
     ifstream file(filename);
     char ch;
-    while (file.get(ch)) {
+    while (file.get(ch))
+    {
         if (ch >= 'A' && ch <= 'Z')
             ch = ch - 'A' + 'a';
         if (ch >= 'a' && ch <= 'z')
