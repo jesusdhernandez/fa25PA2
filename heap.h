@@ -41,13 +41,13 @@ struct MinHeap
 
     void upheap(int pos, int weightArr[])
     {
-        if (pos < 0 || size < 2) return; // OOB or zero/one node
-        if (pos >= size) pos = size - 1; // OOB, default to last
+        if (size < 2) return; // zero/one node
+        if (pos < 0 || pos >= size) pos = size - 1; // OOB, default to last
 
         int parent = (pos - 1) / 2;
         while (weightArr[data[pos]] < weightArr[data[parent]])
         {
-            // Swap idx at pos and parent if pos < parent
+            // Swap current and parent if current < parent
             int temp     = data[pos];
             data[pos]    = data[parent];
             data[parent] = temp;
@@ -60,7 +60,31 @@ struct MinHeap
 
     void downheap(int pos, int weightArr[])
     {
-        // TODO: swap parent downward while larger than any child
+        if (size < 2) return;                // zero/one node
+        if (pos < 0 || pos >= size) pos = 0; // OOB, default to root
+
+        while (true)
+        {
+            // Set left and right children (because there's 2 per household or whatever)
+            int left  = (2 * pos) + 1;
+            int right = (2 * pos) + 2;
+            int smallest = pos; // plus for now, assume the smallest idx is the root
+
+            // then check if root is larger than either child, and set the smallest accordingly
+            if ( left < size && weightArr[data[left ]] < weightArr[data[smallest]])
+                smallest = left;
+            if (right < size && weightArr[data[right]] < weightArr[data[smallest]])
+                smallest = right;
+
+            if (smallest == pos) break;
+
+            // Swap root and smallest
+            int temp       = data[pos];
+            data[pos]      = data[smallest];
+            data[smallest] = temp;
+
+            pos = smallest;
+        }
     }
 };
 
