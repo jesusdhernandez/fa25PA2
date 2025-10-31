@@ -15,7 +15,6 @@ int  weightArr[MAX_NODES];
 int  leftArr  [MAX_NODES];
 int  rightArr [MAX_NODES];
 char charArr  [MAX_NODES];
-MinHeap heap;
 
 // Function prototypes
 void buildFrequencyTable(int freq[], const string &filename);
@@ -97,8 +96,10 @@ int createLeafNodes(int freq[])
 }
 
 // Step 3: Build the encoding tree using heap operations
-int buildEncodingTree(int nextFree) // TODO: Test functionality of this code I wrote while sleep deprived
+int buildEncodingTree(int nextFree)
 {
+    MinHeap heap;
+
     // Push indexes of found letters to heap
     for (int i = 0; i < nextFree; i++)
         if (weightArr[i] > 0)
@@ -109,34 +110,24 @@ int buildEncodingTree(int nextFree) // TODO: Test functionality of this code I w
     if (heap.size == 1) return heap.pop(weightArr);
 
     // Combine weights until one node is left
-    int nextIndex = nextFree;
     while (heap.size > 1)
     {
+        // Get smallest two nodes
         int left  = heap.pop(weightArr);
         int right = heap.pop(weightArr);
 
-        int parent = nextIndex++;
+        weightArr[nextFree] = weightArr[left] + weightArr[right]; // Combine nodes
+        charArr  [nextFree] = PLACEHOLDER;                        // Set terminating marker
+        leftArr  [nextFree] = left;                               // Set smallest
+        rightArr [nextFree] = right;                              // Set second smallest
 
-        weightArr[parent] = weightArr[left] + weightArr[right];
-        charArr  [parent] = PLACEHOLDER;
-        leftArr  [parent] = left;
-        rightArr [parent] = right;
-
-        heap.push(parent, weightArr);
+        // Push index and increment
+        heap.push(nextFree, weightArr);
+        nextFree++;
     }
 
     // Return remaining root
     return heap.pop(weightArr);
-
-    // TODO:
-    // 1. Create a MinHeap object.
-    // 2. Push all leaf node indices into the heap.
-    // 3. While the heap size is greater than 1:
-    //    - Pop two smallest nodes
-    //    - Create a new parent node with combined weight
-    //    - Set left/right pointers
-    //    - Push new parent index back into the heap
-    // 4. Return the index of the last remaining node (root)
 }
 
 // Step 4: Use an STL stack to generate codes
