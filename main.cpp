@@ -1,6 +1,3 @@
-//
-// Created by Manju Muralidharan on 10/19/25.
-//
 #include <iostream>
 #include <fstream>
 #include <stack>
@@ -133,10 +130,40 @@ int buildEncodingTree(int nextFree)
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[])
 {
-    // TODO:
-    // Use stack<pair<int, string>> to simulate DFS traversal.
-    // Left edge adds '0', right edge adds '1'.
-    // Record code when a leaf node is reached.
+    if (root < 0) return;
+
+    stack<pair<int, string>> encoded;
+    encoded.emplace(root, ""); // Push the root (apparently implicit pair creation is a thing now? Cool!)
+
+    while (!encoded.empty())
+    {
+        // Get and pop most recently pushed pair
+        pair<int, string>& current = encoded.top();
+        encoded.pop();
+
+        int     index = current.first;
+        string& code  = current.second;
+
+        int left  = leftArr [index];
+        int right = rightArr[index];
+
+        // Check for leaf nodes
+        if (left == -1 && right == -1)
+        {
+            if (code.empty()) code = "0"; // Prevent empty code
+
+            // Set code for each char
+            char letter = charArr[index];
+            if (letter >= 'a' && letter <= 'z')
+                codes[letter - 'a'] = code;
+
+            continue; // Skip pushing to stack
+        }
+
+        // Not leaf node, encode each char
+        if (right != -1) encoded.emplace(right, code + "1");
+        if ( left != -1) encoded.emplace(left , code + "0");
+    }
 }
 
 // Step 5: Print table and encoded message
