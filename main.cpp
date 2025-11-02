@@ -133,16 +133,16 @@ void generateCodes(int root, string codes[])
     if (root < 0) return;
 
     stack<pair<int, string>> encoded;
-    encoded.emplace(root, ""); // Push the root (apparently implicit pair creation is a thing now? Cool!)
+    encoded.emplace(root, ""); // Start with the root (apparently implicit pair creation is a thing now? Cool!)
 
     while (!encoded.empty())
     {
         // Get and pop most recently pushed pair
-        pair<int, string>& current = encoded.top();
+        pair<int, string> current = encoded.top();
         encoded.pop();
 
-        int     index = current.first;
-        string& code  = current.second;
+        int    index = current.first;
+        string code  = current.second;
 
         int left  = leftArr [index];
         int right = rightArr[index];
@@ -150,7 +150,7 @@ void generateCodes(int root, string codes[])
         // Check for leaf nodes
         if (left == -1 && right == -1)
         {
-            if (code.empty()) code = "0"; // Prevent empty code
+            if (code.empty()) code = "0"; // Prevent empty code for single letter input
 
             // Set code for each char
             char letter = charArr[index];
@@ -160,7 +160,7 @@ void generateCodes(int root, string codes[])
             continue; // Skip pushing to stack
         }
 
-        // Not leaf node, encode each char
+        // Not leaf node, encode each char depending on which turn it takes
         if (right != -1) encoded.emplace(right, code + "1");
         if ( left != -1) encoded.emplace(left , code + "0");
     }

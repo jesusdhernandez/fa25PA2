@@ -76,6 +76,7 @@ struct MinHeap
             if (right < size && weightArr[data[right]] < weightArr[data[smallest]])
                 smallest = right;
 
+            // if the root is the smallest, then we've finished
             if (smallest == pos) break;
 
             // Swap root and smallest
